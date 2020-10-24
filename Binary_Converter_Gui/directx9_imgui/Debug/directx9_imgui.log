@@ -1,0 +1,17 @@
+﻿C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(491,5): warning MSB8028: The intermediate directory (Debug\) contains files shared from another project (directx9_imgui.vcxproj, im_gui_Calculator.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+  main.cpp
+C:\Users\apple\Documents\Code\C++\Binary_Converter_Gui\directx9_imgui\main.cpp(4,9): warning C4068: unknown pragma 'disable'
+C:\Users\apple\Documents\Code\C++\Binary_Converter_Gui\directx9_imgui\main.cpp(68,34): warning C4302: 'type cast': truncation from 'const char *' to 'char'
+C:\Users\apple\Documents\Code\C++\Binary_Converter_Gui\directx9_imgui\main.cpp(75,38): warning C4302: 'type cast': truncation from 'const char *' to 'char'
+C:\Users\apple\Documents\Code\C++\Binary_Converter_Gui\directx9_imgui\main.cpp(103,19): warning C4018: '>': signed/unsigned mismatch
+C:\Users\apple\Documents\Code\C++\Binary_Converter_Gui\directx9_imgui\main.cpp(135,39): warning C4302: 'type cast': truncation from 'const char (*)[1]' to 'char'
+C:\Users\apple\Documents\Code\C++\Binary_Converter_Gui\directx9_imgui\main.cpp(141,37): warning C4018: '<=': signed/unsigned mismatch
+C:\Users\apple\Documents\Code\C++\Binary_Converter_Gui\directx9_imgui\main.cpp(141,77): warning C4018: '<=': signed/unsigned mismatch
+C:\Users\apple\Documents\Code\C++\Binary_Converter_Gui\directx9_imgui\main.cpp(167,31): warning C4302: 'type cast': truncation from 'const char *' to 'char'
+C:\Users\apple\Documents\Code\C++\Binary_Converter_Gui\directx9_imgui\main.cpp(175,19): warning C4018: '>=': signed/unsigned mismatch
+C:\Users\apple\Documents\Code\C++\Binary_Converter_Gui\directx9_imgui\main.cpp(178,52): warning C4302: 'type cast': truncation from 'const char *' to 'char'
+C:\Users\apple\Documents\Code\C++\Binary_Converter_Gui\directx9_imgui\main.cpp(379,46): warning C4302: 'type cast': truncation from 'const char *' to 'char'
+C:\Users\apple\Documents\Code\C++\Binary_Converter_Gui\directx9_imgui\main.cpp(388,51): warning C4302: 'type cast': truncation from 'const char *' to 'char'
+C:\Users\apple\Documents\Code\C++\Binary_Converter_Gui\directx9_imgui\main.cpp(396,31): warning C4018: '>=': signed/unsigned mismatch
+C:\Users\apple\Documents\Code\C++\Binary_Converter_Gui\directx9_imgui\main.cpp(399,64): warning C4302: 'type cast': truncation from 'const char *' to 'char'
+  directx9_imgui.vcxproj -> C:\Users\apple\Documents\Code\C++\Binary_Converter_Gui\Debug\Binary_Converter_Gui.exe
