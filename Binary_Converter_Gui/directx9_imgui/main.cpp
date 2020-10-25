@@ -148,12 +148,23 @@ static char* bin_to_asc(char* inp) {
         }
         //cout << placeholder___.substr(increment, 8) << endl;
         //01100001
-        /*01000010 01100001 01101001 01101100 01111001 00100000 01101001 01110011 00100000 01101001 01100111 01101110 01101111 01110010 01101001 01101110 01100111 00100000 01101101 01100101 00001010*/
+        
 
     }
     return output_arr;
 }
-
+static void HelpMarker(const char* desc)
+{
+    ImGui::TextDisabled("(?)");
+    if (ImGui::IsItemHovered())
+    {
+        ImGui::BeginTooltip();
+        ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+        ImGui::TextUnformatted(desc);
+        ImGui::PopTextWrapPos();
+        ImGui::EndTooltip();
+    }
+}
 static char* bin_to_hex(char* inp) {
     thread th(remove_spaces_input);
     th.join();
@@ -185,10 +196,29 @@ static char* bin_to_hex(char* inp) {
     return placehold_char_hex;
 }
 
+static void reset() {
+    for (int i = 0; i < IM_ARRAYSIZE(text_input); i++) {
+        text_input[i] = sample_reset[0];
+        text_output[i] = sample_reset[0];
+    }
+}
+
 struct MAINWINDOW {
     int WIDTH = 1280;
     int HEIGHT = 800;
 };
+
+auto input_window() {
+     ImGui::SetNextWindowPos(ImVec2(10, 125 + 10));
+    ImGui::SetNextWindowSize(ImVec2(600, 500));
+    ImGui::Begin("Input Text Here", (bool*)false, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+
+    static ImGuiInputTextFlags flags = ImGuiInputTextFlags_AllowTabInput;
+    //-FLT_MIN, ImGui::GetTextLineHeight() * 16 //Old ImVec2 params for the input text multiline
+    ImGui::InputTextMultiline("##source", text_input, IM_ARRAYSIZE(text_input), ImVec2(600, (ImGui::GetTextLineHeight() * 16) + 300), flags);
+
+    ImGui::End();
+}
 
 // Main code
 int main(int, char**)
@@ -243,7 +273,7 @@ int main(int, char**)
 
     // Our state
     bool show_demo_window = false;
-    bool show_another_window = false;
+    bool show_settings_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     
 
@@ -271,11 +301,11 @@ int main(int, char**)
         ImGui_ImplDX9_NewFrame();
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
-        ImGui::SetNextWindowPos(ImVec2(10, 10));
-        ImGui::SetNextWindowSize(ImVec2(MAINWINDOW().WIDTH - 50, 125));
+        ImGui::SetNextWindowPos(ImVec2(10, 5));
+        ImGui::SetNextWindowSize(ImVec2(MAINWINDOW().WIDTH - 50, 130));
         // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-        //if (show_demo_window)
-            //ImGui::ShowDemoWindow(&show_demo_window);
+        if (show_demo_window)
+            ImGui::ShowDemoWindow(&show_demo_window);
 
         // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
         {
@@ -286,11 +316,16 @@ int main(int, char**)
 
             ImGui::Text("Please select what you would like to do");               // Display some text (you can use a format strings too)
             //ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-            //ImGui::Checkbox("Another Window", &show_another_window);
-            //if (ImGui::Button("Convert?")) {
-                
-            //}
+            //ImGui::Checkbox("Settings Window", &show_settings_window);
             
+            if (ImGui::Button("Reset Input and Output")) {
+                thread th(reset);
+                th.join();
+            }
+            ImGui::SameLine(); 
+            thread help_thread(HelpMarker, "This program converts each time on frame, so on some intensive translations, FPS can be drastically lowered. \nHit this button toi reset the values and bruh your FPS back up.");
+            help_thread.join();
+            //Autism
             const char* items[] = { "Ascii", "Binary", "Hex" };
             static int input_item_current_idx = 0;
             static int output_item_current_idx = 0;// Here our selection data is an index.
@@ -314,6 +349,12 @@ int main(int, char**)
                 combo_input = input_item_current_idx;
                 ImGui::EndCombo();
             }
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::BeginTooltip();
+                ImGui::Text("Choose what your input is");                
+                ImGui::EndTooltip();
+            }
 
             if (ImGui::BeginCombo("Output Type", output_combo_label, flags))
             {
@@ -331,20 +372,20 @@ int main(int, char**)
                 combo_output = output_item_current_idx;
                 ImGui::EndCombo();
             }
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::BeginTooltip();
+                ImGui::Text("Choose what your output is");
+                ImGui::EndTooltip();
+            }
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
             ImGui::End();
         }
+        
 
         {            
-            ImGui::SetNextWindowPos(ImVec2(10, 125 + 10));
-            ImGui::SetNextWindowSize(ImVec2(600, 500));
-            ImGui::Begin("Input Text Here", (bool*)false, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
-
-            static ImGuiInputTextFlags flags = ImGuiInputTextFlags_AllowTabInput;
-            //-FLT_MIN, ImGui::GetTextLineHeight() * 16 //Old ImVec2 params for the input text multiline
-            ImGui::InputTextMultiline("##source", text_input, IM_ARRAYSIZE(text_input), ImVec2(600, (ImGui::GetTextLineHeight() * 16) + 300), flags);
-
-            ImGui::End();
+            thread INPUT_WINDOW_THREAD(input_window);
+            INPUT_WINDOW_THREAD.join();
         }
 
         {
@@ -360,21 +401,23 @@ int main(int, char**)
 
             else if (combo_input == 1 && combo_output == 0) {
                 //binary to ascii
-                //cout << text_input << endl;
-                
-
-                ImGui::TextWrapped(bin_to_asc(text_input));
+                //cout << text_input << endl;              
+                thread th(ImGui::TextWrapped, bin_to_asc(text_input));
+                th.join();
             }
 
             else if (combo_input == 1 && combo_output == 2) {
                 //binary to hex              
                 
-                ImGui::TextWrapped(bin_to_hex(text_input));
+                thread th(ImGui::TextWrapped ,bin_to_hex(text_input));
+                th.join();
             }
 
             else if (combo_input == 0 && combo_output == 1) {  
                 //ascii to binary
-                ImGui::TextWrapped(bin());
+
+                thread th(ImGui::TextWrapped, bin());
+                th.join();
             }          
 
             else if (combo_input == 0 && combo_output == 2) {
@@ -387,43 +430,23 @@ int main(int, char**)
                 }                
                 thread th(bin);
                 th.join();
-                char placehold_char[1024 * 16] = "";
-                for (int i = 0, j = 0, a = 0; i < (1024 * 16) - 1; i += 2, j++, a += 4) {
-                    if (i >= 1024 * 16) {
-                        break;
-                    }
-                    if (text_output[j] == (char)"") {
-                        break;
-                    }            
-                    
-                    string placeholder_str = text_output;
-                    //string placeholder = Convert::ASCII_TO_BIN(placeholder_char);
-                    for (int y = 0, u = 0; y < 1024 * 16; y++, u += 4) {                        
-                        //placehold_char[y] = (char)"";
-                        if (u >= placeholder_str.length()) {                            
-                            break;
-                        }
-                        else if (placeholder_str[u] == (char)"") {                            
-                            break;
-                        }                        
-                        placehold_char[y] = Convert::BINARY_TO_HEX(placeholder_str.substr(u, 4));
-                       
-                    };
-                };
-
-                ImGui::TextWrapped(placehold_char);
+                thread thr(ImGui::TextWrapped, bin_to_hex(text_output));
+                thr.join();
             }
 
             else if (combo_input == 2 && combo_output == 1) {
-                //hex to binary               
-                ImGui::TextWrapped(hex_to_bin());
+                //hex to binary
+
+                thread th(ImGui::TextWrapped, hex_to_bin());
+                th.join();
             }
 
             else if (combo_input == 2 && combo_output == 0) {
                 //hex to ascii
                 thread th(hex_to_bin);
                 th.join();             
-                ImGui::Text(bin_to_asc(text_output));
+                thread bta(ImGui::Text, bin_to_asc(text_output));                
+                bta.join();
             }
             
 
@@ -434,12 +457,15 @@ int main(int, char**)
         }
 
         // 3. Show another simple window.
-        if (show_another_window)
+        if (show_settings_window)
         {
-            ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-            ImGui::Text("Hello from another window!");
-            if (ImGui::Button("Close Me"))
-                show_another_window = false;
+           
+            ImGui::Begin("Settings Window", &show_settings_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+            ImGui::Text("Hello from another window!");    
+
+            if (ImGui::Button("Close Me")) {
+                show_settings_window = false;
+            }
             ImGui::End();
         }
 
