@@ -323,7 +323,7 @@ int main(int, char**)
                 th.join();
             }
             ImGui::SameLine(); 
-            thread help_thread(HelpMarker, "This program converts each time on frame, so on some intensive translations, FPS can be drastically lowered. \nHit this button toi reset the values and bruh your FPS back up.");
+            thread help_thread(HelpMarker, "This program converts each time on frame, so on some intensive translations, FPS can be drastically lowered. \nHit this button toi reset the values and bring your FPS back up.");
             help_thread.join();
             //Autism
             const char* items[] = { "Ascii", "Binary", "Hex" };
