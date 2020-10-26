@@ -2,10 +2,15 @@
 // If you are new to Dear ImGui, read documentation from the docs/ folder + read the top of imgui.cpp.
 // Read online: https://github.com/ocornut/imgui/tree/master/docs
 #pragma disable(warning: 4996)
+
+
+
 #include <string>
 #include <iostream>
 #include <sstream>
 #include <thread>
+#include <fstream>
+#include <cstdint>
 using namespace std;
 #include <memory>
 
@@ -19,6 +24,8 @@ using namespace std;
 #include <dinput.h>
 #include <tchar.h>
 
+
+static char path[124] = "PATH";
 // Data
 static LPDIRECT3D9              g_pD3D = NULL;
 static LPDIRECT3DDEVICE9        g_pd3dDevice = NULL;
@@ -28,6 +35,7 @@ static D3DPRESENT_PARAMETERS    g_d3dpp = {};
 bool CreateDeviceD3D(HWND hWnd);
 void CleanupDeviceD3D();
 void ResetDevice();
+
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 static ImGuiComboFlags flags = 0;
@@ -48,9 +56,9 @@ static char text_input[1024 * 16] =
 "";
 
 static char text_output[1024 * 16] = "";
-static char placeholder_array_bin[1024 * 16] = "";
+//static char placeholder_array_bin[1024 * 16] = "";
 static char SPACE = ' ';
-static char placehold_char_hex[1024 * 16] = "";
+//static char placehold_char_hex[1024 * 16] = "";
 auto remove_spaces_input() {
     static char quotes[2] = " ";
     for (int i = 0; i < 1024 * 16; i++) {
@@ -121,8 +129,9 @@ static char* hex_to_bin() {
 };
 
 static char* bin_to_asc(char* inp) {
+    
     for (int i = 0; i < (1024 * 16) - 1; i++) {
-        output_arr[i] = sample_reset[0];
+        text_output[i] = sample_reset[0];
     }
     thread th(remove_spaces_input);
     th.join();
@@ -144,14 +153,14 @@ static char* bin_to_asc(char* inp) {
         }
 
         else {
-            output_arr[i] = Convert::BIN_TO_ASCII((string)placeholder___.substr(increment, 8));
+            text_output[i] = Convert::BIN_TO_ASCII((string)placeholder___.substr(increment, 8));
         }
         //cout << placeholder___.substr(increment, 8) << endl;
         //01100001
         
 
     }
-    return output_arr;
+    return text_output;
 }
 static void HelpMarker(const char* desc)
 {
@@ -168,8 +177,11 @@ static void HelpMarker(const char* desc)
 static char* bin_to_hex(char* inp) {
     thread th(remove_spaces_input);
     th.join();
+    for (int i = 0; i < IM_ARRAYSIZE(output_arr); i++) {
+        output_arr[i] = inp[i];
+    }
     for (int i = 0; i < 1024 * 16; i++) {
-        placehold_char_hex[i] = sample_reset[0];
+        text_output[i] = sample_reset[0];
     }
     for (int i = 0, j = 0, a = 0; i < (1024 * 16) - 1; i += 2, j++, a += 4) {
         if (i >= 1024 * 16) {
@@ -179,7 +191,7 @@ static char* bin_to_hex(char* inp) {
             break;
         }
 
-        string placeholder_str = inp;
+        string placeholder_str = output_arr;
         //string placeholder = Convert::ASCII_TO_BIN(placeholder_char);
         for (int y = 0, u = 0; y < 1024 * 16; y++, u += 4) {
             //placehold_char[y] = (char)"";
@@ -189,11 +201,11 @@ static char* bin_to_hex(char* inp) {
             else if (placeholder_str[u] == (char)"") {
                 break;
             }
-            placehold_char_hex[y] = Convert::BINARY_TO_HEX(placeholder_str.substr(u, 4));
+            text_output[y] = Convert::BINARY_TO_HEX(placeholder_str.substr(u, 4));
 
         };
     };
-    return placehold_char_hex;
+    return text_output;//placehold_char_hex;
 }
 
 static void reset() {
@@ -220,6 +232,27 @@ auto input_window() {
     ImGui::End();
 }
 
+static void SAVE(string path) {
+    if (path == "") {
+        cout << "Please enter a path" << endl;
+    }
+    
+    
+    else {
+        path += ".txt";
+        // Create and open a text file
+        ofstream MyFile;// (path);
+
+        MyFile.open(path);
+
+        // Write to the file
+        MyFile << text_output;
+
+        // Close the file
+        MyFile.close();
+        cout << "Saved to " << path << endl;
+    }
+}
 // Main code
 int main(int, char**)
 {
@@ -273,7 +306,7 @@ int main(int, char**)
 
     // Our state
     bool show_demo_window = false;
-    bool show_settings_window = false;
+    bool show_save_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     
 
@@ -322,10 +355,28 @@ int main(int, char**)
                 thread th(reset);
                 th.join();
             }
-            ImGui::SameLine(); 
+            ImGui::SameLine();
             thread help_thread(HelpMarker, "This program converts each time on frame, so on some intensive translations, FPS can be drastically lowered. \nHit this button toi reset the values and bring your FPS back up.");
             help_thread.join();
-            //Autism
+
+            if (ImGui::Button("Save?")) {
+                if (show_save_window == true) {
+                    show_save_window = false;
+                }
+
+                else {
+                    show_save_window = true;
+                };
+            }
+            ImGui::SameLine();
+            thread help_thread_1(HelpMarker, "Save output to a file");
+            help_thread_1.join();
+
+
+            
+
+
+
             const char* items[] = { "Ascii", "Binary", "Hex" };
             static int input_item_current_idx = 0;
             static int output_item_current_idx = 0;// Here our selection data is an index.
@@ -397,7 +448,7 @@ int main(int, char**)
             if (combo_input == combo_output) {
                 //input = output
                 ImGui::TextWrapped(text_input);
-            }            
+            }
 
             else if (combo_input == 1 && combo_output == 0) {
                 //binary to ascii
@@ -408,26 +459,26 @@ int main(int, char**)
 
             else if (combo_input == 1 && combo_output == 2) {
                 //binary to hex              
-                
-                thread th(ImGui::TextWrapped ,bin_to_hex(text_input));
+
+                thread th(ImGui::TextWrapped, bin_to_hex(text_input));
                 th.join();
             }
 
-            else if (combo_input == 0 && combo_output == 1) {  
+            else if (combo_input == 0 && combo_output == 1) {
                 //ascii to binary
 
                 thread th(ImGui::TextWrapped, bin());
                 th.join();
-            }          
+            }
 
             else if (combo_input == 0 && combo_output == 2) {
                 //ascii to hex
                 string output_string;
                 string placeholder_;
-                
+
                 for (int i = 0; i < (1024 * 16) - 1; i++) {
                     text_output[i] = (char)"";
-                }                
+                }
                 thread th(bin);
                 th.join();
                 thread thr(ImGui::TextWrapped, bin_to_hex(text_output));
@@ -444,27 +495,26 @@ int main(int, char**)
             else if (combo_input == 2 && combo_output == 0) {
                 //hex to ascii
                 thread th(hex_to_bin);
-                th.join();             
-                thread bta(ImGui::Text, bin_to_asc(text_output));                
+                th.join();
+                thread bta(ImGui::TextWrapped, bin_to_asc(text_output));
                 bta.join();
             }
-            
-
-            static ImGuiInputTextFlags flags = ImGuiInputTextFlags_AllowTabInput;
-            
-
             ImGui::End();
         }
 
         // 3. Show another simple window.
-        if (show_settings_window)
+        if (show_save_window)
         {
            
-            ImGui::Begin("Settings Window", &show_settings_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-            ImGui::Text("Hello from another window!");    
+            ImGui::Begin("Save", &show_save_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+            ImGui::Text("Please enter the path of which you would like to save to");   
+            ImGui::InputText(".txt", path, IM_ARRAYSIZE(path));
+            string inp = path;
+            if (ImGui::Button("Save?")) {
+                thread save_thread(SAVE, inp);
+                save_thread.join();
 
-            if (ImGui::Button("Close Me")) {
-                show_settings_window = false;
+                show_save_window = false;
             }
             ImGui::End();
         }
