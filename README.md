@@ -7,7 +7,7 @@ Reccomended exe file is in Binary_Converter_Gui/Release/Binary_Converter_Gui.exe
 ImGui header https://github.com/ocornut/imgui
 
 
-This Program is built on top of the DirectX-9 ImGui example... I personally like the ImGui header, it is easy to use and figure out and im glad I found it.
+This Program is built on top of the DirectX-9 ImGui example... I personally like the ImGui header, it is easy to use and figure out and im glad I found it. I recommend ImGui, because of how easy it is to use and how easy it is to do things with great performance.
 
 
 The converter converts on frame, so the most inefficient thing about the converter is when there are a lot of characters,
