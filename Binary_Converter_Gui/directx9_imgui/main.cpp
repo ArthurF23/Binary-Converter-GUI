@@ -10,7 +10,7 @@
 #include <sstream>
 #include <thread>
 #include <fstream>
-#include <cstdint>
+//#include <cstdint>
 using namespace std;
 #include <memory>
 
@@ -246,6 +246,10 @@ static void SAVE(string path) {
         MyFile.open(path);
 
         // Write to the file
+        MyFile << "Input:\n\n";
+        MyFile << text_input;
+
+        MyFile << "\n\nOutput:\n\n";
         MyFile << text_output;
 
         // Close the file
@@ -355,10 +359,10 @@ int main(int, char**)
                 thread th(reset);
                 th.join();
             }
-            ImGui::SameLine();
+            ImGui::SameLine();            
             thread help_thread(HelpMarker, "This program converts each time on frame, so on some intensive translations, FPS can be drastically lowered. \nHit this button toi reset the values and bring your FPS back up.");
             help_thread.join();
-
+            ImGui::SameLine();
             if (ImGui::Button("Save?")) {
                 if (show_save_window == true) {
                     show_save_window = false;
