@@ -129,8 +129,9 @@ static char* hex_to_bin() {
 };
 
 static char* bin_to_asc(char* inp) {
-    
+    char arr[1024 * 16] = "";
     for (int i = 0; i < (1024 * 16) - 1; i++) {
+        arr[i] = inp[i];
         text_output[i] = sample_reset[0];
     }
     thread th(remove_spaces_input);
@@ -144,7 +145,7 @@ static char* bin_to_asc(char* inp) {
         if (text_input[i] == (char)&"") {
             break;
         }
-        string placeholder___ = inp;
+        string placeholder___ = arr;
         placeholder___ = placeholder___ + " ";
 
         if (placeholder___.length() <= increment || placeholder___.length() <= increment + 8) {
@@ -179,10 +180,12 @@ static char* bin_to_hex(char* inp) {
     th.join();
     for (int i = 0; i < IM_ARRAYSIZE(output_arr); i++) {
         output_arr[i] = inp[i];
-    }
-    for (int i = 0; i < 1024 * 16; i++) {
         text_output[i] = sample_reset[0];
     }
+    //for (int i = 0; i < 1024 * 16; i++) {
+       
+    //}
+    string placeholder_str = output_arr;
     for (int i = 0, j = 0, a = 0; i < (1024 * 16) - 1; i += 2, j++, a += 4) {
         if (i >= 1024 * 16) {
             break;
@@ -191,7 +194,7 @@ static char* bin_to_hex(char* inp) {
             break;
         }
 
-        string placeholder_str = output_arr;
+        
         //string placeholder = Convert::ASCII_TO_BIN(placeholder_char);
         for (int y = 0, u = 0; y < 1024 * 16; y++, u += 4) {
             //placehold_char[y] = (char)"";
@@ -392,14 +395,15 @@ int main(int, char**)
                 for (int n = 0; n < IM_ARRAYSIZE(items); n++)
                 {
                     const bool is_selected = (input_item_current_idx == n);
-                    if (ImGui::Selectable(items[n], is_selected))
+                    if (ImGui::Selectable(items[n], is_selected)) {
                         input_item_current_idx = n;
-
+                        //reset();
+                    }
                     // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-                    if (is_selected)
+                    if (is_selected) {
                         ImGui::SetItemDefaultFocus();
-
-                    
+                        
+                    }
                 }
                 combo_input = input_item_current_idx;
                 ImGui::EndCombo();
@@ -416,10 +420,10 @@ int main(int, char**)
                 for (int n = 0; n < IM_ARRAYSIZE(items); n++)
                 {
                     const bool is_selected = (output_item_current_idx == n);
-                    if (ImGui::Selectable(items[n], is_selected))
+                    if (ImGui::Selectable(items[n], is_selected)) {
                         output_item_current_idx = n;
-                        
-
+                        //reset();
+                    }
                     // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
                     if (is_selected)
                         ImGui::SetItemDefaultFocus();
@@ -500,8 +504,10 @@ int main(int, char**)
                 //hex to ascii
                 thread th(hex_to_bin);
                 th.join();
-                thread bta(ImGui::TextWrapped, bin_to_asc(text_output));
+                thread bta(bin_to_asc, text_output);
                 bta.join();
+
+                ImGui::TextWrapped(text_output);
             }
             ImGui::End();
         }
