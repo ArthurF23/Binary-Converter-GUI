@@ -31,14 +31,9 @@ inline string eight_bitify(string inp) {
 inline string decimal_to_bin(int dec) {
 	string bin = "";
 	while (dec != 0) {
-		//If true, binary bit is 1
-		if (check_int_simplify(dec) == true) {			
-			bin = bin + "1";
-		}
-		//If false, binary bit is 0
-		else {			
-			bin = bin + "0";
-		}
+		/*If true, binary bit is 1
+		If false, binary bit is 0*/
+		check_int_simplify(dec) ? (bin = bin + "1") : (bin = bin + "0");
 		//Divide input by 2 as that is how the converson operates
 		dec = dec / 2;		
 	}
